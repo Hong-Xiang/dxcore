@@ -1,6 +1,6 @@
 import logging
 
-logging.basicConfigsic(
+logging.basicConfig(
     format='[%(levelname)s] %(asctime)s [%(filename)s:%(lineno)d] %(message)s',
     datefmt='%a, %d %b %Y %H:%M:%S',
 )
@@ -11,4 +11,4 @@ def set_logging_level(level=logging.INFO):
   logger.setLevel(level)
 
 
-__all__ = [logger, set_logging_level]
+__all__ = ['logger', 'set_logging_level']
