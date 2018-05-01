@@ -8,7 +8,7 @@ logger = logging.getLogger('dxl')
 
 
 def set_logging_level(level=logging.INFO):
-  logger.setLevel(level)
+    logger.setLevel(level)
 
 
 __all__ = ['logger', 'set_logging_level']
