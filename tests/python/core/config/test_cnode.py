@@ -39,3 +39,17 @@ class TestCNode(unittest.TestCase):
         c = cnode.CNode()
         c.create(cnode.QueryKey(['x']), cnode.CNode({'y': 1}))
         self.assertEqual(c.read(cnode.QueryKey(['x', 'y'])), 1)
+
+
+class TestFromDict(unittest.TestCase):
+    def test_basic(self):
+        dct = {
+            'f1': {
+                'x': 0,
+                'y': 1,
+            },
+            'z': 2,
+        }
+        c = cnode.from_dict(dct)
+        self.assertEqual(c.read(cnode.QueryKey(['z'])), 2)
+        self.assertEqual(c.read(cnode.QueryKey(['f1', 'x'])), 0)

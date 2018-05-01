@@ -1,4 +1,5 @@
 from typing import Dict
+from enum import Enum
 
 
 class QueryKey:
@@ -92,6 +93,27 @@ class CNode:
             c = CNode()
             c.create(key.tail(), node_or_value)
             self._children[key.head()] = c
+
+
+class Keywords:
+    EXPAND = '__expand__'
+
+
+def from_dict(config_dict):
+    def need_expand(v):
+        if not isinstance(v, dict):
+            return False
+        if Keywords.EXPAND in v:
+            return v[Keywords.EXPAND]
+        return True
+
+    config_parsed = {}
+    for k, v in config_dict.items():
+        if need_expand(v):
+            config_parsed[k] = from_dict(v)
+        else:
+            config_parsed[k] = v
+    return CNode(config_parsed)
 
     # def update(self, key:QueryKey, node_or_value):
     #     if len(key) == 1:
