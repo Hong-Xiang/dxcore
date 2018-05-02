@@ -10,13 +10,16 @@ class QueryKey:
         if not isinstance(keys, (list, tuple)):
             raise TypeError(
                 "Expected keys to be list or tuple, got {}.".format(keys))
-        self._keys = keys
+        self._keys = tuple(keys)
 
     def head(self):
         return self._keys[0]
 
     def tail(self):
         return QueryKey(self._keys[1:])
+
+    def last(self):
+        return QueryKey(tuple(self._keys[-1]))
 
     def __len__(self):
         return len(self._keys)
@@ -44,15 +47,20 @@ class CNode:
         else find it in self._children recuresivly.
         """
         if len(key) == 1:
-            return self._values.get(key.head())
+            if key.head() in self._values:
+                return self._values.get(key.head())
+            else:
+                return self._children.get(key.head())
         else:
             if not key.head() in self._children:
                 return None
             return self._children.get(key.head()).read(key.tail())
 
+    @property
     def children(self):
         return self._children
 
+    @property
     def values(self):
         return self._values
 
@@ -94,6 +102,18 @@ class CNode:
             c.create(key.tail(), node_or_value)
             self._children[key.head()] = c
 
+    def is_ancestor_of(self, n):
+        for _, v in self._children.items():
+            if v is n or v.is_ancestor_of(n):
+                return True
+        return False
+
+    # def update(self, key:QueryKey, node_or_value):
+    #     if len(key) == 1:
+    #         self.assign(key.head())
+    #     else:
+    #         self._children[key.head()].update(key.tail(), node)
+
 
 class Keywords:
     EXPAND = '__expand__'
@@ -115,8 +135,13 @@ def from_dict(config_dict):
             config_parsed[k] = v
     return CNode(config_parsed)
 
-    # def update(self, key:QueryKey, node_or_value):
-    #     if len(key) == 1:
-    #         self.assign(key.head())
-    #     else:
-    #         self._children[key.head()].update(key.tail(), node)
+
+class DefaultConfig:
+    _current = None
+
+    def __init__(self, cnode):
+        pass
+
+    @property
+    def node(self):
+        return self._current
