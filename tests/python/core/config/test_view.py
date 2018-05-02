@@ -8,6 +8,11 @@ class TestHelpers(unittest.TestCase):
         c = cnode.CNode({'x': sub})
         self.assertIs(view.base_node(c, 'x'), sub)
 
+    def test_base_node_of_root(self):
+        sub = cnode.CNode()
+        c = cnode.CNode({'x': sub})
+        self.assertIs(view.base_node(c, '/'), c)
+
     def test_find_ancestors(self):
         c0 = cnode.CNode()
         c1 = cnode.CNode({'x': c0})

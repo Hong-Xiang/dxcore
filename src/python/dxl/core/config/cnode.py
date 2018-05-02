@@ -13,7 +13,10 @@ class QueryKey:
         self._keys = tuple(keys)
 
     def head(self):
-        return self._keys[0]
+        if len(self._keys) == 0:
+            return None
+        else:
+            return self._keys[0]
 
     def tail(self):
         return QueryKey(self._keys[1:])
@@ -46,7 +49,9 @@ class CNode:
         if len(key) == 1, then find it in self._values,
         else find it in self._children recuresivly.
         """
-        if len(key) == 1:
+        if len(key) == 0:
+            return self
+        elif len(key) == 1:
             if key.head() in self._values:
                 return self._values.get(key.head())
             else:
@@ -93,7 +98,9 @@ class CNode:
         """
         Create a new child node or value.
         """
-        if len(key) == 1:
+        if len(key) == 0:
+            raise ValueError("Can not create with empty key.")
+        elif len(key) == 1:
             self.assign(key.head(), node_or_value, allow_existed=False)
         else:
             if key.head() in self:
