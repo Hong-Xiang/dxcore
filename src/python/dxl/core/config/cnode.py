@@ -92,16 +92,6 @@ class CNode:
     def keys(self):
         return self.data.keys()
 
-    def assign(self, key: str, node_or_value):
-        if isinstance(node_or_value, CNode):
-            if key in self._values:
-                del self._values[key]
-            self._children[key] = node_or_value
-        else:
-            if key in self._children:
-                del self._children[key]
-            self._values[key] = node_or_value
-
     def create(self, key: QueryKey, node_or_value):
         """
         Create a new child node or value.
