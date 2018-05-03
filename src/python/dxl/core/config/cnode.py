@@ -122,7 +122,16 @@ class CNode:
         """
         key = QueryKey(key)
         if len(key) == 0:
-            raise ValueError("Can not create with empty key.")
+            if not isinstance(node_or_value, (dict, CNode)):
+                raise ValueError(
+                    "Can not update node with none CNode object or dict, overrite_node might need to be True."
+                )
+            for k, v in node_or_value.items():
+                if isinstance(self.data[k], CNode):
+                    self.data[k].update(v)
+                else:
+                    self.data[k] = v
+            return self
         if key.head() in self.data and not allow_exist:
             raise ValueError("Key {} alread existed.".format(key.head()))
         if len(key) > 1:
@@ -138,12 +147,7 @@ class CNode:
                               CNode) or overwrite_node:
                 self.data[key.head()] = node_or_value
             else:
-                if not isinstance(node_or_value, (dict, CNode)):
-                    raise ValueError(
-                        "Can not update node with none CNode object or dict, overrite_node might need to be True."
-                    )
-                for k, v in node_or_value.items():
-                    self.data[key.head()].update(k, v)
+                self.data[key.head()].update([], node_or_value)
             return self
 
 
@@ -166,3 +170,6 @@ class DefaultConfig:
     @property
     def node(self):
         return self._current
+
+    def __enter__(self):
+        pass
