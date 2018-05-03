@@ -74,3 +74,9 @@ class TestConfigs(unittest.TestCase):
         c = cnode.from_dict({'k1': {'k2': {'k3': 'v1'}, 'k4': 'v2'}})
         cv = view.CView(c, view.base_node(c, 'k1/k2'))
         self.assertEqual(cv['k4'], 'v2')
+
+    def test_basic_view(self):
+        c = cnode.CNode()
+        c.update('x', {'a': 1, 'b': 2})
+        v = view.create_view(c, 'x')
+        self.assertEqual(v.get('a'), 1)
