@@ -69,4 +69,6 @@ New design:
 # from ._configurable import configurable
 
 from .cnode import from_dict as create_config_tree
+create_node = create_config_tree
+from .cnode import CNode
 from .view import create_view

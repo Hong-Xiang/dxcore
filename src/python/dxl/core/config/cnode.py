@@ -10,7 +10,7 @@ class QueryKey:
         if isinstance(keys, QueryKey):
             keys = keys._keys
         if isinstance(keys, str):
-            keys = [keys]
+            keys = keys.split('/')
         if keys is None:
             keys = []
         if not isinstance(keys, (list, tuple)):
@@ -83,7 +83,7 @@ class CNode:
         return self.data[key]
 
     def get(self, key: str, value=None):
-        return self.get(key, value)
+        return self.data.get(key, value)
 
     def __iter__(self):
         return iter(self.data)
@@ -147,7 +147,10 @@ class CNode:
         if len(key) == 1:
             if not isinstance(self.data.get(key.head()),
                               CNode) or overwrite_node:
-                self.data[key.head()] = node_or_value
+                if need_expand(node_or_value):
+                    self.data[key.head()] = from_dict(node_or_value)
+                else:
+                    self.data[key.head()] = node_or_value
             else:
                 self.data[key.head()].update([], node_or_value)
             return self
