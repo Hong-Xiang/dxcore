@@ -40,6 +40,24 @@ class TestCNode(unittest.TestCase):
         c.create(cnode.QueryKey(['x']), cnode.CNode({'y': 1}))
         self.assertEqual(c.read(cnode.QueryKey(['x', 'y'])), 1)
 
+    def test_fast_read(self):
+        c = cnode.CNode({'x': 1})
+        c = cnode.CNode({'s': c, 'y': 2})
+        self.assertEqual(c.read(['s', 'x']), 1)
+        self.assertEqual(c.read('y'), 2)
+
+    def test_fast_create(self):
+        c = cnode.CNode()
+        c.create('x', cnode.CNode({'y': 1}))
+        self.assertEqual(c.read(cnode.QueryKey(['x', 'y'])), 1)
+
+    def test_update_v(self):
+        c = cnode.CNode({'x': 1})
+        c = cnode.CNode({'y': 2, 's': c})
+        self.assertEqual(c['y'], 2)
+        c.update(cnode.QueryKey('y'), 3)
+        self.assertEqual(c['y'], 3)
+
 
 class TestFromDict(unittest.TestCase):
     def test_basic(self):

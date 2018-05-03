@@ -7,6 +7,10 @@ class QueryKey:
         """
         `key`: All possible value which is converatble to key.
         """
+        if isinstance(keys, QueryKey):
+            keys = keys._keys
+        if isinstance(keys, str):
+            keys = [keys]
         if not isinstance(keys, (list, tuple)):
             raise TypeError(
                 "Expected keys to be list or tuple, got {}.".format(keys))
@@ -49,6 +53,7 @@ class CNode:
         if len(key) == 1, then find it in self._values,
         else find it in self._children recuresivly.
         """
+        key = QueryKey(key)
         if len(key) == 0:
             return self
         elif len(key) == 1:
@@ -69,16 +74,33 @@ class CNode:
     def values(self):
         return self._values
 
-    def __getitem__(self, key):
+    def get_kernel(self, key):
         if key in self._children:
-            return self._children[key]
+            return self._children[key], True
         elif key in self._values:
-            return self._values[key]
-        else:
+            return self._values[key], True
+        return None, False
+
+    def __getitem__(self, key):
+        v, f = self.get_kernel(key)
+        if not f:
             raise KeyError(key)
+        return v
+
+    def get(self, key: str, value=None):
+        v, f = self.get_kernel(key)
+        if f:
+            return v
+        return value
 
     def __iter__(self):
         return iter(list(self._children.keys()) + list(self._values.keys()))
+
+    def items(self):
+        return tuple(list(self._children.items()) + list(self._values.items()))
+
+    def keys(self):
+        return tuple(list(self._children.keys()) + list(self._values.keys()))
 
     def assign(self, key: str, node_or_value, *, allow_existed=True):
         if isinstance(node_or_value, CNode):
@@ -98,6 +120,7 @@ class CNode:
         """
         Create a new child node or value.
         """
+        key = QueryKey(key)
         if len(key) == 0:
             raise ValueError("Can not create with empty key.")
         elif len(key) == 1:
@@ -115,11 +138,26 @@ class CNode:
                 return True
         return False
 
-    # def update(self, key:QueryKey, node_or_value):
-    #     if len(key) == 1:
-    #         self.assign(key.head())
-    #     else:
-    #         self._children[key.head()].update(key.tail(), node)
+    def update(self, key: QueryKey, node_or_value):
+        """
+        Updating config.
+        If node_or_value is a value, update directly.
+        If node_or_value is a CNode, check if this node exists.
+            If not exists: direct assign.
+            If exists: update each item of that node. 
+        Note: the node_or_value argument is not assigned to the node tree.
+        """
+        key = QueryKey(key)
+        if len(key) == 0:
+            raise ValueError("Length of QueryKey can not be zero.")
+        if len(key) > 1:
+            if not key.head() in self._children:
+                raise KeyError("Key {} not found.".format(key.head()))
+            return self._children[key.head()].update(key.tail(), node_or_value)
+        if not isinstance(node_or_value, CNode):
+            self._values[key.head()] = node_or_value
+            return self.assign(key.head(), node_or_value)
+        self._children[key.head()].update(key.tail(), node)
 
 
 class Keywords:
