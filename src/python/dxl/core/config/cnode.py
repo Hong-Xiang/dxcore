@@ -11,6 +11,8 @@ class QueryKey:
             keys = keys._keys
         if isinstance(keys, str):
             keys = [keys]
+        if keys is None:
+            keys = []
         if not isinstance(keys, (list, tuple)):
             raise TypeError(
                 "Expected keys to be list or tuple, got {}.".format(keys))
