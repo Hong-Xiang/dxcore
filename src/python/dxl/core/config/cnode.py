@@ -32,20 +32,26 @@ class QueryKey:
         return len(self._keys)
 
 
+class Keywords:
+    EXPAND = '__expand__'
+
+
+def need_expand(v):
+    if not isinstance(v, dict):
+        return False
+    if Keywords.EXPAND in v:
+        return v[Keywords.EXPAND]
+    return True
+
+
 class CNode:
     def __init__(self, config=None):
         """
         `config`: initial configs, which should be a dict of CNode/value.
         """
-        self._children = {}
-        self._values = {}
         if config is None:
             config = {}
-        for k, v in config.items():
-            if isinstance(v, CNode):
-                self._children[k] = v
-            else:
-                self._values[k] = v
+        self.data = config
 
     def read(self, key: QueryKey):
         """
@@ -56,89 +62,66 @@ class CNode:
         key = QueryKey(key)
         if len(key) == 0:
             return self
-        elif len(key) == 1:
-            if key.head() in self._values:
-                return self._values.get(key.head())
-            else:
-                return self._children.get(key.head())
-        else:
-            if not key.head() in self._children:
-                return None
-            return self._children.get(key.head()).read(key.tail())
+        if len(key) == 1:
+            return self.data.get(key.head())
+        if not key.head() in self.data or not isinstance(
+                self.data[key.head()], CNode):
+            return None
+        return self.data.get(key.head()).read(key.tail())
 
     @property
     def children(self):
-        return self._children
+        return {k: v for k, v in self.data.items() if isinstance(v, CNode)}
 
     @property
     def values(self):
-        return self._values
-
-    def get_kernel(self, key):
-        if key in self._children:
-            return self._children[key], True
-        elif key in self._values:
-            return self._values[key], True
-        return None, False
+        return {k: v for k, v in self.data.items() if not isinstance(v, CNode)}
 
     def __getitem__(self, key):
-        v, f = self.get_kernel(key)
-        if not f:
-            raise KeyError(key)
-        return v
+        return self.data[key]
 
     def get(self, key: str, value=None):
-        v, f = self.get_kernel(key)
-        if f:
-            return v
-        return value
+        return self.get(key, value)
 
     def __iter__(self):
-        return iter(list(self._children.keys()) + list(self._values.keys()))
+        return iter(self.data)
 
     def items(self):
-        return tuple(list(self._children.items()) + list(self._values.items()))
+        return self.data.items()
 
     def keys(self):
-        return tuple(list(self._children.keys()) + list(self._values.keys()))
+        return self.data.keys()
 
-    def assign(self, key: str, node_or_value, *, allow_existed=True):
+    def assign(self, key: str, node_or_value):
         if isinstance(node_or_value, CNode):
-            if not allow_existed and key in self._children:
-                raise ValueError("Key {} alread existed.".format(key))
             if key in self._values:
-                raise ValueError("Duplicated key {} in value.".format(key))
+                del self._values[key]
             self._children[key] = node_or_value
         else:
-            if not allow_existed and key in self._values:
-                raise ValueError("Key {} alread existed.".format(key))
             if key in self._children:
-                raise ValueError("Duplicated key {} in children.".format(key))
+                del self._children[key]
             self._values[key] = node_or_value
 
     def create(self, key: QueryKey, node_or_value):
         """
         Create a new child node or value.
         """
-        key = QueryKey(key)
-        if len(key) == 0:
-            raise ValueError("Can not create with empty key.")
-        elif len(key) == 1:
-            self.assign(key.head(), node_or_value, allow_existed=False)
-        else:
-            if key.head() in self:
-                raise ValueError("Key {} alread existed.".format(key.head()))
-            c = CNode()
-            c.create(key.tail(), node_or_value)
-            self._children[key.head()] = c
+        return self.update(key, node_or_value, allow_exist=False)
 
     def is_ancestor_of(self, n):
-        for _, v in self._children.items():
+        for k, v in self.data.items():
+            if not isinstance(v, CNode):
+                continue
             if v is n or v.is_ancestor_of(n):
                 return True
         return False
 
-    def update(self, key: QueryKey, node_or_value):
+    def update(self,
+               key: QueryKey,
+               node_or_value,
+               *,
+               allow_exist=True,
+               overwrite_node=False):
         """
         Updating config.
         If node_or_value is a value, update directly.
@@ -149,29 +132,32 @@ class CNode:
         """
         key = QueryKey(key)
         if len(key) == 0:
-            raise ValueError("Length of QueryKey can not be zero.")
+            raise ValueError("Can not create with empty key.")
+        if key.head() in self.data and not allow_exist:
+            raise ValueError("Key {} alread existed.".format(key.head()))
         if len(key) > 1:
-            if not key.head() in self._children:
-                raise KeyError("Key {} not found.".format(key.head()))
-            return self._children[key.head()].update(key.tail(), node_or_value)
-        if not isinstance(node_or_value, CNode):
-            self._values[key.head()] = node_or_value
-            return self.assign(key.head(), node_or_value)
-        self._children[key.head()].update(key.tail(), node)
-
-
-class Keywords:
-    EXPAND = '__expand__'
+            if not isinstance(self.data.get(key.head()),
+                              CNode) or overwrite_node:
+                self.data[key.head()] = CNode().update(key.tail(),
+                                                       node_or_value)
+            else:
+                self.data[key.head()].update(key.tail(), node_or_value)
+            return self
+        if len(key) == 1:
+            if not isinstance(self.data.get(key.head()),
+                              CNode) or overwrite_node:
+                self.data[key.head()] = node_or_value
+            else:
+                if not isinstance(node_or_value, (dict, CNode)):
+                    raise ValueError(
+                        "Can not update node with none CNode object or dict, overrite_node might need to be True."
+                    )
+                for k, v in node_or_value.items():
+                    self.data[key.head()].update(k, v)
+            return self
 
 
 def from_dict(config_dict):
-    def need_expand(v):
-        if not isinstance(v, dict):
-            return False
-        if Keywords.EXPAND in v:
-            return v[Keywords.EXPAND]
-        return True
-
     config_parsed = {}
     for k, v in config_dict.items():
         if need_expand(v):

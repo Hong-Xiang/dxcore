@@ -57,6 +57,16 @@ class TestCNode(unittest.TestCase):
         self.assertEqual(c['y'], 2)
         c.update(cnode.QueryKey('y'), 3)
         self.assertEqual(c['y'], 3)
+    
+    def test_update_n(self):
+        c = cnode.CNode({'x': 1})
+        c = cnode.CNode({'y': 2, 's': c})
+        self.assertEqual(c['y'], 2)
+        c.update(cnode.QueryKey('y'), 3)
+        self.assertEqual(c['y'], 3)
+        self.assertEqual(c.read(['s', 'x']), 1)
+        c = c.update('s', {'x': 2})
+        self.assertEqual(c.read(['s', 'x']), 2)
 
 
 class TestFromDict(unittest.TestCase):
