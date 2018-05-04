@@ -129,7 +129,7 @@ class CNode:
                     "Can not update node with none CNode object or dict, overrite_node might need to be True."
                 )
             for k, v in node_or_value.items():
-                if isinstance(self.data[k], CNode):
+                if isinstance(self.data.get(k), CNode):
                     self.data[k].update(v)
                 else:
                     self.data[k] = v
