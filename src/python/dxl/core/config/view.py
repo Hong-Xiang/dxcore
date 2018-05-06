@@ -43,6 +43,8 @@ def base_node(root, key_path):
     result = root.read(_parse_query_key(key_path))
     if result is None:
         raise ValueError("No node of {} is found.".format(key_path))
+        # root.update(_parse_query_key(key_path), CNode())
+        # result = root.read(_parse_query_key(key_path))
     return result
 
 
@@ -86,6 +88,9 @@ class CView:
         if v is None:
             return value
         return v
+
+    def items(self):
+        return self._base.items()
 
 
 def create_view(root, key_path):

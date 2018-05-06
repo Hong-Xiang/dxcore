@@ -80,3 +80,11 @@ class TestConfigs(unittest.TestCase):
         c.update('x', {'a': 1, 'b': 2})
         v = view.create_view(c, 'x')
         self.assertEqual(v.get('a'), 1)
+
+    # def test_update(self):
+    #     c = cnode.CNode()
+    #     c.update('x', {'a': 1})
+    #     v = view.create_view(c, 'x/y')
+    #     v._base.update('b', 2)
+    #     assert v['a'] == 1
+    #     assert v['b'] == 2
