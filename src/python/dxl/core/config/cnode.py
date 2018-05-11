@@ -1,6 +1,7 @@
 from typing import Dict
 from enum import Enum
 
+
 class QueryKey:
     """
     <Immutable>
@@ -123,10 +124,6 @@ class CNode(UserDict):
     def children(self):
         return {k: v for k, v in self.data.items() if isinstance(v, CNode)}
 
-    @property
-    def values(self):
-        return {k: v for k, v in self.data.items() if not isinstance(v, CNode)}
-
     def create(self, key: QueryKey, node_or_value):
         """
         Create a new child node or value.
@@ -189,16 +186,8 @@ class CNode(UserDict):
             return self
 
 
-
 def from_dict(config_dict):
     return CNode(config_dict)
-    config_parsed = {}
-    for k, v in config_dict.items():
-        if need_expand(v):
-            config_parsed[k] = from_dict(v)
-        else:
-            config_parsed[k] = v
-    return CNode(config_parsed)
 
 
 class DefaultConfig:

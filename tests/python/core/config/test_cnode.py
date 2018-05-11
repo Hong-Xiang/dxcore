@@ -29,6 +29,16 @@ class TestCNode(unittest.TestCase):
     def test_construct(self):
         c_sub = cnode.CNode({'x': 1, 'y': 2})
         c = cnode.CNode({'sub': c_sub, 'z': 3})
+    
+    def test_normal_dict(self):
+        c = cnode.CNode({'x': 1, 'y': 2})
+        assert len(c) == 2
+        assert c['x'] == 1
+        assert c['y'] == 2
+        assert tuple(c.keys()) == ('x', 'y')
+        assert tuple(c.values()) == (1, 2)
+        assert [v for k, v in c.items()] == [1, 2]
+        assert [k for k, v in c.items()] == ['x', 'y']
 
     def test_read_value_simple(self):
         c = cnode.CNode({'x': 1})
