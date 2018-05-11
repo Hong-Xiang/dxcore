@@ -61,6 +61,20 @@ New design:
     
     Also provide the following helper functions:
     default() -> default config tree
+
+Design V3:
+    1. Everything is saved in a real dict (no any special objects).
+    2. All operations were done via CNode.
+    3. Basic views were done via CView.
+    4. Advanced view were done by concrete class of CSpec.
+
+    class CNode:
+        def __init__(self, data:dict):
+            pass
+        
+        def __getitem__(self, key):
+            pass
+
 """
 
 # from .base import Configs

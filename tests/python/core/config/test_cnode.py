@@ -9,6 +9,10 @@ class TestQueryKey(unittest.TestCase):
     def test_head(self):
         k = cnode.QueryKey(['x', 'y', 'z'])
         self.assertEqual(k.head(), 'x')
+    
+    def test_head_none(self):
+        k = cnode.QueryKey()
+        assert k.head() is None
 
     def test_tail(self):
         k = cnode.QueryKey(['x', 'y', 'z'])
