@@ -99,7 +99,7 @@ class CNode(UserDict):
         if not isinstance(value, dict) or value.get(self.KEYS.NO_EXPAND):
             self.data[key] = value
         else:
-            self.data[key] = CNode(value)
+            self.data[key] = CNode(value, self)
 
     def __setitem__(self, key, value):
         self._update_kernel(key, value)
@@ -119,6 +119,7 @@ class CNode(UserDict):
                 self.data[key.head()], CNode):
             return default_value
         return self.data.get(key.head()).read(key.tail())
+    
 
     @property
     def children(self):

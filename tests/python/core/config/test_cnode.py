@@ -106,3 +106,8 @@ class TestCNode(unittest.TestCase):
         c = cnode.CNode(dct)
         self.assertEqual(c.read(cnode.QueryKey(['z'])), 2)
         self.assertEqual(c.read(cnode.QueryKey(['f1', 'x'])), 0)
+    
+    def test_father(self):
+        c = cnode.CNode({'x': 1, 'y': {'z': 2}})
+        c2 = c['y']
+        assert c2.father == c
