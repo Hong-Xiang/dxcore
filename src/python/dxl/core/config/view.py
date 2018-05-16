@@ -55,11 +55,27 @@ class CView:
     """
 
     def __init__(self, root, base=None):
+        if isinstance(root, dict):
+            root = CNode(root)
+            base = root
+        elif isinstance(root, CView):
+            root = root.root
+            if base is None:
+                base = root.base
+
         self._root = root
         if base is None:
             self._base = root
         else:
             self._base = base
+
+    @property
+    def root(self):
+        return self._root
+
+    @property
+    def base(self):
+        return self._base
 
     def get_kernel(self, key, value=None):
         v = self._base.read(_parse_query_key(key))

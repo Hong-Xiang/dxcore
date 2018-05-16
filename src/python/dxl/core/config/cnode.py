@@ -2,8 +2,8 @@ from typing import Dict
 from enum import Enum
 
 
-
 from .query_key import QueryKey
+
 
 class Keywords:
     EXPAND = '__expand__'
@@ -65,7 +65,6 @@ class CNode(UserDict):
                 self.data[key.head()], CNode):
             return default_value
         return self.data.get(key.head()).read(key.tail())
-    
 
     @property
     def children(self):
