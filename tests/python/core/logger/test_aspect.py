@@ -12,9 +12,6 @@ class LoggerTestCase(unittest.TestCase):
         DURING_CALL = 'during_call'
         AFTER_CALL = 'after_call'
 
-    def expected_messages_and_levels(self):
-        return [], None
-
     def setUp(self):
         self.backend = SimpleInMemoryBackend()
         self.messages = []

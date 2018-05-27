@@ -4,30 +4,25 @@ from dxl.core.logger import Logger
 from dxl.core.logger.backend import SimpleInMemoryBackend
 import logging
 
+from .test_aspect import LoggerTestCase
 
 
-
-
-class TestLogger(unittest.TestCase):
+class TestLogger(LoggerTestCase):
     def create_temp_logger(self):
-        logger = Logger(uuid.uuid4())
-        logger.backend = self.backend
+        logger = Logger(self.backend)
         return logger
 
-    def get_messages(self, nb_phases):
-        return [uuid.uuid4() for _ in range(nb_phases)]
-
     def test_before(self):
+        from dxl.core.logger.aspect import LoggerBefore
         logger = self.create_temp_logger()
+        self.assertIsInstance(logger.before, LoggerBefore)
 
-        @logger.before.info(self.message_aspect_before())
+        messages = ['foo called.']
+        self.messages = messages
+
+        @logger.before.info(messages[0])
         def foo():
-            backend.info(self.message_during_call())
+            pass
 
-        backend.info(self.message_after_definition())
         foo()
-        backend.info(self.message_after_call())
-        self.assertFunctionCallInfoIsCorrect()
-
-
-
+        self.assertMessagesAreCorrect()

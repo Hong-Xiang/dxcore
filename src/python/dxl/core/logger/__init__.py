@@ -7,3 +7,4 @@ Objective:
 - advantages from standard logging system
 """
 from ._logger import Logger
+from .backend import SimpleInMemoryBackend
