@@ -1,5 +1,6 @@
 import unittest
 from dxl.core.config import cnode, view
+import pytest
 
 
 class TestHelpers(unittest.TestCase):
@@ -81,6 +82,13 @@ class TestConfigs(unittest.TestCase):
         v = view.create_view(c, 'x')
         self.assertEqual(v.get('a'), 1)
 
+    @pytest.mark.skip("Not finished test")
+    def test_keys(self):
+        c = cnode.CNode()
+        c.update('x', {'a': 1, 'b': 2})
+        v = view.create_view(c, 'x')
+        v.keys()
+        assert False
     # def test_update(self):
     #     c = cnode.CNode()
     #     c.update('x', {'a': 1})
