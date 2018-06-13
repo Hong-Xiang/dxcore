@@ -11,6 +11,12 @@ class LoggerAspect:
     def info(self, message):
         return self.make_log(self.backend.info, message)
 
+    def debug(self, message):
+        return self.make_log(self.backend.debug, message)
+
+    def error(self, message):
+        return self.make_log(self.backend.error, message)
+
 
 class LoggerBefore(LoggerAspect):
     def make_log(self, log_maker, message):
@@ -27,7 +33,7 @@ class LoggerBefore(LoggerAspect):
 class LoggerAfter(LoggerAspect):
     def make_log(self, log_maker, message):
         def advice(func):
-            def call(*args, **kwags):
+            def call(*args, **kwargs):
                 result = func(*args, **kwargs)
                 if isinstance(result, dict):
                     log_maker(self.make_message(message, **result))

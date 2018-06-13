@@ -25,3 +25,6 @@ class Logger:
     @property
     def after(self):
         return self.after_aspect
+
+    def info(self, message):
+        self.backend.info(message)
