@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
     name='dxl-core',
-    version='0.0.8',
+    version='0.1.0',
     description='Core utility library.',
     url='https://github.com/Hong-Xiang/dxcore',
     author='Hong Xiang',
