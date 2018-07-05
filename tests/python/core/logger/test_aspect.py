@@ -3,6 +3,7 @@ from dxl.core.logger import aspect
 from dxl.core.logger.backend import SimpleInMemoryBackend
 import uuid
 import logging
+import pytest
 
 
 class LoggerTestCase(unittest.TestCase):
@@ -81,6 +82,18 @@ class TestLoggerBeforeAspect(LoggerTestCase):
         self.messages = ['arg0: 1, arg1: 2']
 
         @a.info('arg0: {}, arg1: {}')
+        def foo(a, b):
+            pass
+
+        foo(1, 2)
+        self.assertMessagesAreCorrect()
+
+    @pytest.skip('Not fixed yet.')
+    def test_kwargs_from_args(self):
+        a = self.create_aspect()
+        self.messages = ['arg0: 1, arg1: 2']
+
+        @a.info('arg0: {a}, arg1: {b}')
         def foo(a, b):
             pass
 
