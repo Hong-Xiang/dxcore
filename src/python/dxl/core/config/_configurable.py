@@ -57,11 +57,11 @@ def get_name(_func, *args, **kw):
 
 class configurable:
     def __init__(self, configs_object=None, with_name=False):
-        from ._viewer import ConfigsView
+        from .view import CView
         if configs_object is None:
             configs_object = dict()
         if isinstance(configs_object, dict):
-            configs_object = ConfigsView(configs_object)
+            configs_object = CView(configs_object)
         self._c = configs_object
         self._with_name = with_name
 

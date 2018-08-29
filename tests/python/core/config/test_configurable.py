@@ -1,11 +1,13 @@
 import unittest
-from dxpy.configs import configurable, ConfigsView
-from dxpy.configs._configurable import parse_configs
+from dxl.core.config._configurable import configurable
+from dxpy.configs import ConfigsView
+from dxl.core.config._configurable import parse_configs
 
 
 class TestParseConfigs(unittest.TestCase):
 
     def test_basic(self):
+
         def foo(a, b, *, c, d, e=4):
             pass
         result = parse_configs(foo, 0, _config_object=ConfigsView({'b': 1, 'c': 2}), d=3)
@@ -137,6 +139,8 @@ class TestConfigurable(unittest.TestCase):
     def test_kw(self):
         c = dict()
         @configurable(c)
-        def foo(**kw):
-            return kw
+        def foo(**kwargs):
+            return kwargs
         self.assertEqual(foo(a=1, b=2), {'a': 1, 'b': 2})
+if __name__ =='__main__':
+    unittest.main()
