@@ -90,6 +90,9 @@ class ConfigProxy(AbstractProxy):
 	def __getitem__(self, item):
 		return self.__configs[item]
 
+	def __setitem__(self, config_id, root):
+		return self.set_root_node(config_id, root)
+
 	def get_root_node(self, config_id):
 		if config_id not in self.__configs.keys():
 			return None

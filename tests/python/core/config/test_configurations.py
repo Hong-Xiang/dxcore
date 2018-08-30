@@ -126,3 +126,11 @@ class Test_ConfigProxy:
 		cp = ConfigProxy(c1,'root1')
 		cp.set_root_node('root1', node2)
 		assert cp.get_root_node('root1')['y'] == 2
+
+	def test_set_root_node_by_dic_way(self):
+		node1 = cnode.CNode({'x':1})
+		node2 = cnode.CNode({'y':2})
+		c1 = Configuration(node1)
+		cp = ConfigProxy(c1,'root1')
+		cp['root1'] = node2
+		assert cp['root1']['y'] == 2
