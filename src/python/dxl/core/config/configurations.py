@@ -60,17 +60,25 @@ class ConfigProxy(AbstractProxy):
 	"""a proxy for configuration."""
 	_instance_lock = threading.Lock()
 	__configs = {}
+	_instance = None
 
-	def __init__(self, root, root_id):
+	def __init__(self, root=None, root_id=None):
 		self.init_params = [root, root_id]
-		self.create_proxy()
+		if self.init_params[0] is not None and self.init_params[1] is not None:
+			self.create_proxy()
 
 	def __new__(cls, *args, **kwargs):
-		if not hasattr(ConfigProxy, '_instance'):
+		if ConfigProxy._instance is None:
 			with ConfigProxy._instance_lock:
-				if not hasattr(ConfigProxy, '_instance'):
+				if ConfigProxy._instance is None:
 					ConfigProxy._instance = object.__new__(cls)
 		return ConfigProxy._instance
+
+	@classmethod
+	def reset(cls):
+		if ConfigProxy._instance is not None:
+			ConfigProxy._instance = None
+			ConfigProxy.__configs = {}
 
 	def create_proxy(self):
 		return self.add_proxy(self.init_params[0], self.init_params[1])
@@ -79,6 +87,8 @@ class ConfigProxy(AbstractProxy):
 		"""assign a name(ID) for every config"""
 		if not isinstance(config_obj, Configuration):
 			raise ValueError('config_obj must be a Configuration object.')
+		if config_id in self.__configs.keys():
+			raise ValueError('config_id already exists.')
 		self.__configs[config_id] = config_obj
 
 	def write(self, config_id, keys, config_obj, is_overwrite=False):
@@ -91,14 +101,25 @@ class ConfigProxy(AbstractProxy):
 		return self.__configs[item]
 
 	def __setitem__(self, config_id, root):
-		return self.set_root_node(config_id, root)
+		if config_id in self.__configs.keys():
+			if isinstance(root, Configuration):
+				self.__configs[config_id] = root
+				return
+			else:
+				raise ValueError('item must be a configuration object.')
+		self.add_proxy(root, config_id)
+		return
 
 	def get_root_node(self, config_id):
+		"""get configuration's root Cnode corresponding to config_id"""
 		if config_id not in self.__configs.keys():
 			return None
 		return self.__configs[config_id].get_root()
 
 	def set_root_node(self, config_id, root):
+		"""reset configuration's root Cnode corresponding to config_id"""
+		if config_id not in self.__configs.keys():
+			raise ValueError('configuration not found .')
 		return self.__configs[config_id].set_root(root)
 
 

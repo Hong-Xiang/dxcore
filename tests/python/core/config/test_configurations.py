@@ -84,53 +84,125 @@ class Test_ConfigProxy:
 		assert b.get_root_node('root2')['y'] == 2
 
 	def test_add_proxy(self):
+		root = cnode.CNode({'z':3})
+		c = Configuration(root)
+		ConfigProxy.reset()
+		cp = ConfigProxy()
 		root1 = cnode.CNode({'x':1})
 		root2 = cnode.CNode({'y':2})
 		c1 = Configuration(root1)
 		c2 = Configuration(root2)
-		cp = ConfigProxy(c1,'root1')
+		cp.add_proxy(c1,'root1')
 		cp.add_proxy(c2,'root2')
-		r2 = cp.get_root_node('root2')
-		r1 = cp.get_root_node('root1')
-		assert r2 is root2
-		assert r1 is root1
+		cp.add_proxy(c, 'root3')
+		assert cp['root3']['z'] == 3
+		assert cp['root1']['x'] == 1
+		assert cp['root2']['y'] == 2
 
 	def test_write(self):
-		root1 = cnode.CNode({'x': 1})
+		root = cnode.CNode({'z':3})
+		c = Configuration(root)
+		ConfigProxy.reset()
+		cp = ConfigProxy()
+		root1 = cnode.CNode({'x':1})
+		root2 = cnode.CNode({'y':2})
 		c1 = Configuration(root1)
-		cp = ConfigProxy(c1, 'root1')
-		cp.write('root1','x/y',{'y1':3, 'y2':4})
-		r = cp.get_root_node('root1')
-		assert r['x']['y']['y1'] == 3
-		assert r['x']['y']['y2'] == 4
+		c2 = Configuration(root2)
+		cp.add_proxy(c1,'root1')
+		cp.add_proxy(c2,'root2')
+		cp.add_proxy(c, 'root3')
+		cp.write('root1','x/x1',{'x11':3, 'x12':4})
+		assert cp['root1']['x']['x1']['x11'] == 3
+		assert cp['root1']['x']['x1']['x12'] == 4
+
+	def test_write_overwrite(self):
+		root = cnode.CNode({'z':3})
+		c = Configuration(root)
+		ConfigProxy.reset()
+		cp = ConfigProxy()
+		root1 = cnode.CNode({'x':1})
+		root2 = cnode.CNode({'y':2})
+		c1 = Configuration(root1)
+		c2 = Configuration(root2)
+		cp.add_proxy(c1,'root1')
+		cp.add_proxy(c2,'root2')
+		cp.add_proxy(c, 'root3')
+		cp.write('root1','x/x1',{'x11':3, 'x12':4})
+		node = cnode.CNode({'yy':11})
+		node2 = cnode.CNode({'yyy':22})
+		node3 = cnode.CNode({'yyyy':33})
+		cp.write('root2','y',node,is_overwrite=False)
+		cp.write('root2','y',node3,is_overwrite=False)
+		assert cp['root2']['y']['yy'] == 11
+		assert cp['root2']['y']['yyyy'] == 33
+		cp.write('root2','y',node2,is_overwrite=True)
+		assert cp['root2']['y']['yyy'] == 22
+		assert cp['root2']['y']['yy'] is None
 
 	def test_read(self):
-		node1 = cnode.CNode({'z':3})
-		root1 = cnode.CNode({'x':1,'y':node1})
+		root = cnode.CNode({'z':3})
+		c = Configuration(root)
+		ConfigProxy.reset()
+		cp = ConfigProxy()
+		root1 = cnode.CNode({'x':1})
+		root2 = cnode.CNode({'y':2})
 		c1 = Configuration(root1)
-		cp = ConfigProxy(c1,'root1')
-		assert cp.read('root1', 'y/z') == 3
-		assert cp.read('root1', 'y')['z'] == 3
-		assert cp['root1']['y']['z'] == 3
+		c2 = Configuration(root2)
+		cp.add_proxy(c1,'root1')
+		cp.add_proxy(c2,'root2')
+		cp.add_proxy(c, 'root3')
+		cp.write('root1','x/x1',{'x11':3, 'x12':4})
+		assert cp.read('root1', 'x/x1/x11') == 3
+		assert cp.read('root1', 'x/x1')['x12'] == 4
 
 	def test_get_root_node(self):
-		node1 = cnode.CNode({'x':1})
-		c1 = Configuration(node1)
-		cp = ConfigProxy(c1,'root1')
-		assert cp.get_root_node('root1')['x'] == 1
+		root = cnode.CNode({'z':3})
+		c = Configuration(root)
+		ConfigProxy.reset()
+		cp = ConfigProxy()
+		root1 = cnode.CNode({'x':1})
+		root2 = cnode.CNode({'y':2})
+		c1 = Configuration(root1)
+		c2 = Configuration(root2)
+		cp.add_proxy(c1,'root1')
+		cp.add_proxy(c2,'root2')
+		cp.add_proxy(c, 'root3')
+		cp.write('root1','x/x1',{'x11':3, 'x12':4})
+		assert cp.get_root_node('root3')['z'] == 3
 
 	def test_set_root_node(self):
-		node1 = cnode.CNode({'x':1})
-		node2 = cnode.CNode({'y':2})
-		c1 = Configuration(node1)
-		cp = ConfigProxy(c1,'root1')
-		cp.set_root_node('root1', node2)
-		assert cp.get_root_node('root1')['y'] == 2
+		root = cnode.CNode({'z':3})
+		c = Configuration(root)
+		ConfigProxy.reset()
+		cp = ConfigProxy()
+		root1 = cnode.CNode({'x':1})
+		root2 = cnode.CNode({'y':2})
+		c1 = Configuration(root1)
+		c2 = Configuration(root2)
+		cp.add_proxy(c1,'root1')
+		cp.add_proxy(c2,'root2')
+		cp.add_proxy(c, 'root3')
+		cp.write('root1','x/x1',{'x11':3, 'x12':4})
+		node = cnode.CNode({'q':5})
+		cp.set_root_node('root3', node)
+		assert cp.get_root_node('root3')['q'] == 5
+		assert 'z' not in cp.get_root_node('root3')
 
-	def test_set_root_node_by_dic_way(self):
-		node1 = cnode.CNode({'x':1})
-		node2 = cnode.CNode({'y':2})
-		c1 = Configuration(node1)
-		cp = ConfigProxy(c1,'root1')
-		cp['root1'] = node2
-		assert cp['root1']['y'] == 2
+	def test_set_configs_by_dic_way(self):
+		root = cnode.CNode({'z':3})
+		c = Configuration(root)
+		ConfigProxy.reset()
+		cp = ConfigProxy()
+		root1 = cnode.CNode({'x':1})
+		root2 = cnode.CNode({'y':2})
+		c1 = Configuration(root1)
+		c2 = Configuration(root2)
+		cp.add_proxy(c1,'root1')
+		cp.add_proxy(c2,'root2')
+		cp.add_proxy(c, 'root3')
+		cp.write('root1','x/x1',{'x11':3, 'x12':4})
+		node = cnode.CNode({'w':6})
+		c_new = Configuration(node)
+		cp['root3'] = c_new
+		assert cp['root3']['w'] == 6
+		assert cp['root3']['z'] is None
