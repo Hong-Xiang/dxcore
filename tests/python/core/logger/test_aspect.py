@@ -88,7 +88,7 @@ class TestLoggerBeforeAspect(LoggerTestCase):
         foo(1, 2)
         self.assertMessagesAreCorrect()
 
-    @pytest.skip('Not fixed yet.')
+    @pytest.mark.skip('Not fixed yet.')
     def test_kwargs_from_args(self):
         a = self.create_aspect()
         self.messages = ['arg0: 1, arg1: 2']
