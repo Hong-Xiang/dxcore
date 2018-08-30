@@ -15,7 +15,7 @@ class Configs:
         while result is None:
             result = self
         for k in keys:
-            result =
+            result =None
 
     def get(self, key):
         keys = self._unified_and_processing_input_key(key)
