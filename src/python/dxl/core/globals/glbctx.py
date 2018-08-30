@@ -14,8 +14,10 @@ class GlobalContext:
 
     @classmethod
     def clear(cls):
-        if cls in globals:
+        try:
             del globals[cls]
+        except KeyError:
+            pass
 
 
 def clear_all():
