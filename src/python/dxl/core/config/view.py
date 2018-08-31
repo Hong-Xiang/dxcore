@@ -119,6 +119,10 @@ class CView:
         if self[key] is None:
             self[key] = value
 
+    def update_value_and_default(self, key, value, default):
+        self.update_default(key, default)
+        self.update(key, value)
+
 
 def create_view(root, key_path):
     """

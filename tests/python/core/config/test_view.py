@@ -132,3 +132,17 @@ class TestConfigs(unittest.TestCase):
         v = view.create_view(c, 'x')
         v.update_default('b', 3)
         assert v['b'] == 3
+
+    def test_update_value_and_default_default(self):
+        c = cnode.CNode()
+        c.update('x', {'a': 1})
+        v = view.create_view(c, 'x')
+        v.update_value_and_default('b', None, 3)
+        assert v['b'] == 3
+
+    def test_update_value_and_default_value(self):
+        c = cnode.CNode()
+        c.update('x', {'a': 1})
+        v = view.create_view(c, 'x')
+        v.update_value_and_default('b', 1, 3)
+        assert v['b'] == 1
