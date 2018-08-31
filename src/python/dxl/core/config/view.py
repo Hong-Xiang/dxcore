@@ -1,4 +1,4 @@
-#from dxl.fs import Path
+# from dxl.fs import Path
 
 from pathlib import Path
 from .cnode import QueryKey, CNode
@@ -99,6 +99,9 @@ class CView:
     def __getitem__(self, key):
         return self.search(key)
 
+    def __setitem__(self, key, value):
+        return self.base.update(key, value)
+
     def get(self, key, value=None):
         v = self.search(key)
         if v is None:
@@ -114,7 +117,6 @@ def create_view(root, key_path):
     Get config view by path
     """
     return CView(root, base_node(root, key_path))
-
 
 # class ConfigViewer:
 #     def __unified_keys(self, path_or_keys):
