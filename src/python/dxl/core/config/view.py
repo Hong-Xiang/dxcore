@@ -1,4 +1,4 @@
-#from dxl.fs import Path
+# from dxl.fs import Path
 
 from pathlib import Path
 from .cnode import QueryKey, CNode
@@ -42,9 +42,9 @@ def _find_ancestors(root, cnode):
 def base_node(root, key_path):
     result = root.read(_parse_query_key(key_path))
     if result is None:
-        raise ValueError("No node of {} is found.".format(key_path))
-        # root.update(_parse_query_key(key_path), CNode())
-        # result = root.read(_parse_query_key(key_path))
+        # raise ValueError("No node of {} is found.".format(key_path))
+        root.update(_parse_query_key(key_path), CNode())
+        result = root.read(_parse_query_key(key_path))
     return result
 
 
@@ -99,6 +99,9 @@ class CView:
     def __getitem__(self, key):
         return self.search(key)
 
+    def __setitem__(self, key, value):
+        return self.base.update(key, value)
+
     def get(self, key, value=None):
         v = self.search(key)
         if v is None:
@@ -108,13 +111,24 @@ class CView:
     def items(self):
         return self._base.items()
 
+    def update(self, key, value):
+        if self[key] is None or value is not None:
+            self[key] = value
+
+    def update_default(self, key, value):
+        if self[key] is None:
+            self[key] = value
+
+    def update_value_and_default(self, key, value, default):
+        self.update_default(key, default)
+        self.update(key, value)
+
 
 def create_view(root, key_path):
     """
     Get config view by path
     """
     return CView(root, base_node(root, key_path))
-
 
 # class ConfigViewer:
 #     def __unified_keys(self, path_or_keys):

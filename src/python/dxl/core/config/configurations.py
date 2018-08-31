@@ -1,10 +1,12 @@
 import abc
 import threading
 from ..config import cnode, view
+from .view import create_view
+
+__all__ = ['Sourceable', 'AbstractProxy', 'Configuration', 'ConfigProxy']
 
 
 class Sourceable(object):
-
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
@@ -19,7 +21,6 @@ class Sourceable(object):
 
 
 class AbstractProxy(object):
-
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
@@ -29,7 +30,6 @@ class AbstractProxy(object):
 
 
 class Configuration(Sourceable):
-
     __root = None
 
     def __init__(self, root_node):
@@ -43,10 +43,13 @@ class Configuration(Sourceable):
     def get_root(self):
         return self.__root
 
-    def read(self, keys)-> view.CView:
+    def read(self, keys) -> view.CView:
         if self.__root is not None:
             cv = view.CView(self.__root)
             return cv.get(keys)
+
+    def get_view(self, path):
+        return create_view(self.__root, path)
 
     def __getitem__(self, keys):
         return self.read(keys)
@@ -56,7 +59,6 @@ class Configuration(Sourceable):
 
 
 class ConfigProxy(AbstractProxy):
-
     """a proxy for configuration."""
     _instance_lock = threading.Lock()
     __configs = {}
@@ -100,6 +102,12 @@ class ConfigProxy(AbstractProxy):
     def __getitem__(self, item):
         return self.__configs[item]
 
+    def get_view(self, item, path):
+        return self.__configs[item].get_view(path)
+
+    def get(self, item):
+        return self.__configs.get(item)
+
     def __setitem__(self, config_id, root):
         if config_id in self.__configs.keys():
             if isinstance(root, Configuration):
@@ -109,6 +117,10 @@ class ConfigProxy(AbstractProxy):
                 raise ValueError('item must be a configuration object.')
         self.add_proxy(root, config_id)
         return
+
+    def __delitem__(self, key):
+        if key in self.__configs:
+            del self.__configs[key]
 
     def get_root_node(self, config_id):
         """get configuration's root Cnode corresponding to config_id"""
@@ -121,4 +133,3 @@ class ConfigProxy(AbstractProxy):
         if config_id not in self.__configs.keys():
             raise ValueError('configuration not found .')
         return self.__configs[config_id].set_root(root)
-
