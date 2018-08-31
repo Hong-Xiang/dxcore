@@ -90,10 +90,45 @@ class TestConfigs(unittest.TestCase):
         v.keys()
         assert False
 
-    def test_update(self):
+    def test_setitem(self):
         c = cnode.CNode()
         c.update('x', {'a': 1})
         v = view.create_view(c, 'x')
         v['b'] = 2
         assert v['a'] == 1
         assert v['b'] == 2
+
+    def test_update(self):
+        c = cnode.CNode()
+        c.update('x', {'a': 1})
+        v = view.create_view(c, 'x')
+        v.update('b', 2)
+        assert v['b'] == 2
+
+    def test_update_with_none(self):
+        c = cnode.CNode()
+        c.update('x', {'a': 1})
+        v = view.create_view(c, 'x')
+        v.update('a', None)
+        assert v['a'] == 1
+
+    def test_update_with_none_without_conflict(self):
+        c = cnode.CNode()
+        c.update('x', {'a': 1})
+        v = view.create_view(c, 'x')
+        v.update('b', None)
+        assert v['b'] is None
+
+    def test_update_default(self):
+        c = cnode.CNode()
+        c.update('x', {'a': 1})
+        v = view.create_view(c, 'x')
+        v.update_default('a', 3)
+        assert v['a'] == 1
+
+    def test_update_default_without_conflict(self):
+        c = cnode.CNode()
+        c.update('x', {'a': 1})
+        v = view.create_view(c, 'x')
+        v.update_default('b', 3)
+        assert v['b'] == 3

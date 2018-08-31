@@ -111,6 +111,14 @@ class CView:
     def items(self):
         return self._base.items()
 
+    def update(self, key, value):
+        if self[key] is None or value is not None:
+            self[key] = value
+
+    def update_default(self, key, value):
+        if self[key] is None:
+            self[key] = value
+
 
 def create_view(root, key_path):
     """
