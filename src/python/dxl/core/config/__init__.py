@@ -88,4 +88,4 @@ create_node = create_config_tree
 from .cnode import CNode
 from .view import CView
 from .view import create_view
-from .configurations import ConfigProxy
+from .configurations import *

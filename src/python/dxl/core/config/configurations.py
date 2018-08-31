@@ -3,6 +3,8 @@ import threading
 from ..config import cnode, view
 from .view import create_view
 
+__all__ = ['Sourceable', 'AbstractProxy', 'Configuration', 'ConfigProxy']
+
 
 class Sourceable(object):
     __metaclass__ = abc.ABCMeta
@@ -103,6 +105,9 @@ class ConfigProxy(AbstractProxy):
     def get_view(self, item, path):
         return self.__configs[item].get_view(path)
 
+    def get(self, item):
+        return self.__configs.get(item)
+
     def __setitem__(self, config_id, root):
         if config_id in self.__configs.keys():
             if isinstance(root, Configuration):
@@ -112,6 +117,10 @@ class ConfigProxy(AbstractProxy):
                 raise ValueError('item must be a configuration object.')
         self.add_proxy(root, config_id)
         return
+
+    def __delitem__(self, key):
+        if key in self.__configs:
+            del self.__configs[key]
 
     def get_root_node(self, config_id):
         """get configuration's root Cnode corresponding to config_id"""
