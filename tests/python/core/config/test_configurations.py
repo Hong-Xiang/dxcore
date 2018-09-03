@@ -44,6 +44,7 @@ class Test_Configuration:
     def test_read_configs_node(self):
         root1 = cnode.CNode({'x': 1})
         root2 = cnode.CNode({'y': 2})
+
         a = Configuration(root1)
         b = Configuration(root2)
         assert a is not b
@@ -55,6 +56,7 @@ class Test_Configuration:
         a = Configuration(root1)
         a.write('x/y', 2)
         a.write('x/z', {'z1': 11, 'z2': 22})
+
         a.write('x/y/d', cnode.CNode({'d1': 33}))
         assert a['x']['z']['z2'] == 22
         assert a['x']['y'] is not 2
@@ -69,6 +71,7 @@ class Test_Configuration:
         a.write('x/y', node1, is_overwrite=False)
         assert a['x']['y']['d'] == 4
         a.write('x/y', node1, is_overwrite=True)
+
         assert a['x']['y']['d'] is None
 
 
@@ -81,6 +84,7 @@ class Test_ConfigProxy:
         c2 = Configuration(root2)
         a = ConfigProxy(c1, 'root1')
         b = ConfigProxy(c2, 'root2')
+
         assert a is b
         assert b.get_root_node('root2')['y'] == 2
 
@@ -95,6 +99,7 @@ class Test_ConfigProxy:
         c2 = Configuration(root2)
         cp.add_proxy(c1, 'root1')
         cp.add_proxy(c2, 'root2')
+
         cp.add_proxy(c, 'root3')
         assert cp['root3']['z'] == 3
         assert cp['root1']['x'] == 1
@@ -113,6 +118,7 @@ class Test_ConfigProxy:
         cp.add_proxy(c2, 'root2')
         cp.add_proxy(c, 'root3')
         cp.write('root1', 'x/x1', {'x11': 3, 'x12': 4})
+
         assert cp['root1']['x']['x1']['x11'] == 3
         assert cp['root1']['x']['x1']['x12'] == 4
 
@@ -137,6 +143,7 @@ class Test_ConfigProxy:
         assert cp['root2']['y']['yy'] == 11
         assert cp['root2']['y']['yyyy'] == 33
         cp.write('root2', 'y', node2, is_overwrite=True)
+
         assert cp['root2']['y']['yyy'] == 22
         assert cp['root2']['y']['yy'] is None
 
@@ -153,6 +160,7 @@ class Test_ConfigProxy:
         cp.add_proxy(c2, 'root2')
         cp.add_proxy(c, 'root3')
         cp.write('root1', 'x/x1', {'x11': 3, 'x12': 4})
+
         assert cp.read('root1', 'x/x1/x11') == 3
         assert cp.read('root1', 'x/x1')['x12'] == 4
 
@@ -185,6 +193,7 @@ class Test_ConfigProxy:
         cp.add_proxy(c, 'root3')
         cp.write('root1', 'x/x1', {'x11': 3, 'x12': 4})
         node = cnode.CNode({'q': 5})
+
         cp.set_root_node('root3', node)
         assert cp.get_root_node('root3')['q'] == 5
         assert 'z' not in cp.get_root_node('root3')
@@ -203,6 +212,7 @@ class Test_ConfigProxy:
         cp.add_proxy(c, 'root3')
         cp.write('root1', 'x/x1', {'x11': 3, 'x12': 4})
         node = cnode.CNode({'w': 6})
+
         c_new = Configuration(node)
         cp['root3'] = c_new
         assert cp['root3']['w'] == 6
