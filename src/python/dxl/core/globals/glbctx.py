@@ -5,8 +5,8 @@ globals = {}
 
 class GlobalContext:
     @classmethod
-    def set(cls, o):
-        globals[cls] = o
+    def set(cls, value):
+        globals[cls] = value
 
     @classmethod
     def get(cls):
